@@ -5,15 +5,18 @@ on local models (Ollama on one AMD Strix Halo GPU) and local services. Each fold
 is code that runs in the lab today, with personal details replaced by
 placeholders.
 
-Three projects have their own repositories:
+Four projects have their own repositories:
 
 - [web-search-mcp](https://github.com/nishaero/web-search-mcp): an MCP server for
   live web search, weather, Home Assistant state and document search
 - [agent-memory-mcp](https://github.com/nishaero/agent-memory-mcp): shared memory
   for several agents (Postgres with pgvector, HTTP API and MCP front end)
+- [homelab-ops-agent](https://github.com/nishaero/homelab-ops-agent): the autonomous ops agent (sanitized,
+  placeholders for hosts and addresses): allowlisted tools, backups with rollback, health checks, notification
+  dedupe, 24 tests
 - [homelab-multi-agent](https://github.com/nishaero/homelab-multi-agent): a coordinator
   and specialist agents that hand work to each other, with human approval, guard rails,
-  an audit trail, 57 tests and a live evaluation
+  an audit trail, 65 tests and a live evaluation
 
 ## Architecture
 
@@ -97,7 +100,7 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 
 | Folder | What it shows |
 |---|---|
-| [docs](docs) | The architecture diagram, the AI design (tool list, guard rails, memory, failures and fixes), the run time flows and a plan for a multi agent workflow. The ops agent code is in a private repository. |
+| [docs](docs) | The architecture diagram, the AI design (tool list, guard rails, memory, failures and fixes), the run time flows and a plan for a multi agent workflow. The ops agent code is in [homelab-ops-agent](https://github.com/nishaero/homelab-ops-agent). |
 | [doorbell-face-recognition](doorbell-face-recognition) | Face recognition against an existing photo library, a vision model for deliveries and vehicles, and a teach loop driven by phone notifications. |
 | [gpu-sharing-gate](gpu-sharing-gate) | A reference counted pause and resume gate so background machine learning yields the GPU to latency sensitive work. |
 | [nas-document-rag](nas-document-rag) | Text extraction, OCR with a vision model and ingestion into an Open WebUI knowledge base, all resumable and read only. |
@@ -125,8 +128,8 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 
 ## Limits, stated plainly
 
-- Test and evaluation sets are small. homelab-multi-agent has 57 tests and a 12 case routing
-  evaluation. The two MCP repositories have small test suites (8 and 6 tests). The doorbell,
+- Test and evaluation sets are small. homelab-multi-agent has 65 tests and a 12 case routing
+  evaluation. The ops agent has 24 tests of its guard rails, and the two MCP repositories have small test suites (8 and 6 tests). The doorbell,
   GPU gate, document search, voice and automation folders were checked on the live system only.
 - The older ops agent stops an identical repeated tool call only. homelab-multi-agent adds
   detection of near identical calls and a cap per tool.
