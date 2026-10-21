@@ -13,7 +13,7 @@ Three projects have their own repositories:
   for several agents (Postgres with pgvector, HTTP API and MCP front end)
 - [homelab-multi-agent](https://github.com/nishaero/homelab-multi-agent): a coordinator
   and specialist agents that hand work to each other, with human approval, guard rails,
-  an audit trail, 42 tests and a live evaluation
+  an audit trail, 57 tests and a live evaluation
 
 ## Architecture
 
@@ -125,8 +125,9 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 
 ## Limits, stated plainly
 
-- Test and evaluation sets are small. homelab-multi-agent has 42 tests and a 12 case routing
-  evaluation. The other projects were checked on the live system only.
+- Test and evaluation sets are small. homelab-multi-agent has 57 tests and a 12 case routing
+  evaluation. The two MCP repositories have small test suites (8 and 6 tests). The doorbell,
+  GPU gate, document search, voice and automation folders were checked on the live system only.
 - The older ops agent stops an identical repeated tool call only. homelab-multi-agent adds
   detection of near identical calls and a cap per tool.
 - The older agents (ops, doorbell, voice) are separate single purpose services. Agents that
