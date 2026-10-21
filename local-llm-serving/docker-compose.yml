@@ -1,0 +1,42 @@
+services:
+  vllm:
+    image: rocm/vllm-dev:rocm7.2_navi_ubuntu24.04_py3.12_pytorch_2.9_vllm_0.14.0rc0
+    container_name: vllm-strix-halo
+    privileged: true
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card1:/dev/dri/card1
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "8100:8100"
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=11.5.1
+      - ROCM_PATH=/opt/rocm
+      - HIP_VISIBLE_DEVICES=0
+      - VLLM_USE_TRITON_AWQ=1
+      - PYTORCH_HIP_ALLOC_CONF=expandable_segments:True
+    command: >
+      python -m vllm.entrypoints.openai.api_server
+      --model Qwen/Qwen2.5-Coder-32B-Instruct-AWQ
+      --quantization awq
+      --host 0.0.0.0
+      --port 8100
+      --gpu-memory-utilization 0.45
+      --enforce-eager
+      --max-model-len 16384
+      --swap-space 16
+      --max-num-seqs 256
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+    restart: unless-stopped
+#    shm_size: 32gb
+
+volumes:
+  hf_cache:

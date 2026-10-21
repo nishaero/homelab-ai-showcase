@@ -101,6 +101,7 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 | [doorbell-face-recognition](doorbell-face-recognition) | Face recognition against an existing photo library, a vision model for deliveries and vehicles, and a teach loop driven by phone notifications. |
 | [gpu-sharing-gate](gpu-sharing-gate) | A reference counted pause and resume gate so background machine learning yields the GPU to latency sensitive work. |
 | [nas-document-rag](nas-document-rag) | Text extraction, OCR with a vision model and ingestion into an Open WebUI knowledge base, all resumable and read only. |
+| [local-llm-serving](local-llm-serving) | A vLLM on ROCm setup serving a quantized 32B model on an integrated GPU. |
 | [voice-assistant](voice-assistant) | Local text to speech stack for a voice assistant, and a watchdog that recovers a hung Ollama. |
 | [home-assistant-automations](home-assistant-automations) | Heating and hot water automations that use weather and solar forecasts, written for underfloor heating and a heat pump. |
 
@@ -117,8 +118,8 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 | Retrieval augmented generation | nas-document-rag, web-search-mcp (`search_documents`) |
 | Vision language model integration | doorbell-face-recognition, nas-document-rag (OCR) |
 | Face recognition pipeline | doorbell-face-recognition |
-| Voice assistant pipeline | voice-assistant |
-| Local model hosting and GPU sharing | gpu-sharing-gate, voice-assistant |
+| Voice assistant infrastructure (text to speech bridge, Ollama watchdog) | voice-assistant |
+| Local model hosting and GPU sharing | gpu-sharing-gate, local-llm-serving (vLLM, stopped now) |
 | Failure analysis and debugging | the failure table in docs/ai-design.md |
 | Home automation with forecasts | home-assistant-automations |
 
