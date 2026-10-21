@@ -1,0 +1,38 @@
+{
+  "id": "1790000000002",
+  "alias": "Heating: the child's room too cool in Winter",
+  "description": "Tells you when the child's room stays under 17.5 C for 3 hours while heating is on.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.childs_room_temperature",
+      "below": 17.5,
+      "for": "03:00:00"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "climate.heat_pump",
+      "attribute": "preset_mode",
+      "state": "Winter"
+    }
+  ],
+  "actions": [
+    {
+      "action": "notify.mobile_app_phone_1",
+      "data": {
+        "title": "the child's room is cool",
+        "message": "the child's room is {{ states('sensor.childs_room_temperature') }} C with heating on. Turn the wall dial up one notch and wait a full day before changing it again."
+      }
+    },
+    {
+      "action": "notify.mobile_app_phone_2",
+      "data": {
+        "title": "the child's room is cool",
+        "message": "the child's room is {{ states('sensor.childs_room_temperature') }} C with heating on. Turn the wall dial up one notch and wait a full day before changing it again."
+      }
+    }
+  ],
+  "mode": "single"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "1790000000003",
+  "alias": "Hot water: daily schedule",
+  "description": "From 11:00 the tank is heated for the 15:00 and 17:00 to 19:00 showers: 55 C when the solar forecast for today is 10 kWh or more (stores free solar heat), otherwise 50 C. From 19:30 it holds 45 C overnight, or 42 C when tomorrow's solar forecast is 10 kWh or more. Replaces the two PV based hot water automations (switched off, not deleted).",
+  "triggers": [
+    {
+      "trigger": "time",
+      "at": "11:00:00",
+      "id": "heat"
+    },
+    {
+      "trigger": "time",
+      "at": "19:30:00",
+      "id": "hold"
+    },
+    {
+      "trigger": "homeassistant",
+      "event": "start",
+      "id": "restore"
+    }
+  ],
+  "actions": [
+    {
+      "action": "water_heater.set_operation_mode",
+      "target": {
+        "entity_id": "water_heater.heat_pump"
+      },
+      "data": {
+        "operation_mode": "Always active"
+      }
+    },
+    {
+      "action": "water_heater.set_temperature",
+      "target": {
+        "entity_id": "water_heater.heat_pump"
+      },
+      "data": {
+        "temperature": "{% set today = states('sensor.energy_production_today') | float(0) %}{% set tomorrow = states('sensor.energy_production_tomorrow') | float(0) %}{% if trigger.id == 'heat' or (trigger.id == 'restore' and 11 <= now().hour < 20) %}{{ 55 if today >= 10 else 50 }}{% else %}{{ 42 if tomorrow >= 10 else 45 }}{% endif %}"
+      }
+    }
+  ],
+  "mode": "single"
+}

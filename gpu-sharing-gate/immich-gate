@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""immich-gate pause|resume|status [owner] - yield the shared iGPU/CPU to latency-sensitive work.
+
+Several owners (ops agent, doorbell/voice watcher) can hold Immich paused at once; a queue is only
+resumed when the last owner lets go, and queues paused on purpose (not by this script) are never touched."""
+import fcntl, json, os, pathlib, sys, urllib.request
+
+env = dict(l.strip().split("=", 1) for l in open(os.path.expanduser("~/.config/immich-gate.env")) if "=" in l)
+URL, KEY = env["IMMICH_URL"], env["IMMICH_GATE_KEY"]
+QUEUES = ["smartSearch", "faceDetection", "facialRecognition", "ocr", "duplicateDetection",
+          "videoConversion", "thumbnailGeneration", "metadataExtraction"]
+STATE = pathlib.Path(os.path.expanduser("~/.local/state/immich-gate.json"))
+
+
+def call(method, path, body=None):
+    r = urllib.request.Request(URL + "/api" + path, method=method,
+                               headers={"x-api-key": KEY, "content-type": "application/json"},
+                               data=json.dumps(body).encode() if body is not None else None)
+    return json.load(urllib.request.urlopen(r, timeout=15))
+
+
+def load():
+    try:
+        s = json.loads(STATE.read_text())
+        if isinstance(s, dict) and "claims" in s:
+            return s
+    except Exception:
+        pass
+    return {"claims": {}, "paused_by_gate": []}
+
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "status"
+    owner = sys.argv[2] if len(sys.argv) > 2 else "ops"
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    with open(STATE.with_suffix(".lock"), "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        st = load()
+        mine = set(st["claims"].get(owner, []))
+        gate = set(st["paused_by_gate"])
+        if cmd == "pause":
+            for q in QUEUES:
+                paused = call("GET", f"/queues/{q}")["isPaused"]
+                if paused and q not in gate:
+                    continue  # paused on purpose, leave alone
+                mine.add(q)
+                if not paused:
+                    call("PUT", f"/queues/{q}", {"isPaused": True})
+                    gate.add(q)
+            st["claims"][owner] = sorted(mine)
+        elif cmd == "resume":
+            st["claims"].pop(owner, None)
+            claimed = {q for qs in st["claims"].values() for q in qs}
+            for q in sorted(gate - claimed):
+                call("PUT", f"/queues/{q}", {"isPaused": False})
+                gate.discard(q)
+        st["paused_by_gate"] = sorted(gate)
+        STATE.write_text(json.dumps(st))
+        if cmd == "status":
+            print({q: ("paused" if call("GET", f"/queues/{q}")["isPaused"] else "run") for q in QUEUES})
+        print("claims:", st["claims"], "| held by gate:", st["paused_by_gate"])
+
+
+main()

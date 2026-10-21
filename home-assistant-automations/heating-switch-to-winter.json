@@ -1,0 +1,62 @@
+{
+  "id": "1790000000001",
+  "alias": "Heating: switch to Winter when the house cools",
+  "description": "Heating stays off until it is needed: outside under 6 C for 6 hours, or the hallway under 19 C or the child's room under 18 C for 3 hours. Hot water keeps running in Winter mode.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.heat_pump_outside_temp",
+      "below": 6,
+      "for": "06:00:00",
+      "id": "outdoor"
+    },
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.childs_room_temperature",
+      "below": 18.0,
+      "for": "03:00:00",
+      "id": "child_room"
+    },
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.hallway_temperature",
+      "below": 19.0,
+      "for": "03:00:00",
+      "id": "hallway"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "climate.heat_pump",
+      "attribute": "preset_mode",
+      "state": "Summer"
+    }
+  ],
+  "actions": [
+    {
+      "action": "climate.set_preset_mode",
+      "target": {
+        "entity_id": "climate.heat_pump"
+      },
+      "data": {
+        "preset_mode": "Winter"
+      }
+    },
+    {
+      "action": "notify.mobile_app_phone_1",
+      "data": {
+        "title": "Heating switched to Winter",
+        "message": "Triggered by {{ trigger.id }}. Hallway {{ states('sensor.hallway_temperature') }} C, the child's room {{ states('sensor.childs_room_temperature') }} C, outside {{ states('sensor.heat_pump_outside_temp') }} C. The floor takes a day to warm up. Set the wall dial and leave it."
+      }
+    },
+    {
+      "action": "notify.mobile_app_phone_2",
+      "data": {
+        "title": "Heating switched to Winter",
+        "message": "Triggered by {{ trigger.id }}. Hallway {{ states('sensor.hallway_temperature') }} C, the child's room {{ states('sensor.childs_room_temperature') }} C, outside {{ states('sensor.heat_pump_outside_temp') }} C. The floor takes a day to warm up. Set the wall dial and leave it."
+      }
+    }
+  ],
+  "mode": "single"
+}
