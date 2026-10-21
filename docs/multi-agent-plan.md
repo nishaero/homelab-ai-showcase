@@ -1,8 +1,8 @@
 # Multi agent plan
 
-Status: design, not built. This describes how the separate agents in the lab can
-become a team that hands work to each other, what is reused from what already
-runs, and the order to build it in.
+Status: built as [homelab-multi-agent](https://github.com/nishaero/homelab-multi-agent), which
+runs beside the existing agents. This page is the original plan. The differences are listed
+at the end.
 
 ## Where things stand
 
@@ -116,3 +116,18 @@ are added on top:
   and a read only research role keep that cheap.
 - Without tests this gets hard to change safely, which is why the evaluation set
   is part of the plan and not an extra.
+
+## What changed when it was built
+
+- **SQLite instead of the memory service for tasks.** A local table is simpler to test and
+  keeps the new system independent of the old one. The memory service is optional: a finished
+  request leaves a note there.
+- **Planner is a model with a rule fallback.** The coordinator asks the model for a plan and
+  falls back to keyword rules if the plan is invalid or the model is down.
+- **Real loop detection.** Near identical calls and a cap per tool were added, because exact
+  matching misses a model that varies its arguments.
+- **A claim check.** A live trial showed a summary saying a change had been made when none had.
+  Answers that claim a change are now corrected in code.
+- **Dry run by default.** Approved actions are recorded and only run when dry run is turned off.
+- **Model choice measured.** `qwen3.8:27b` scored best on routing and tool use and was faster
+  than the other large model tried. See the evaluation page in the project.

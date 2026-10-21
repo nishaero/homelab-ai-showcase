@@ -5,12 +5,15 @@ on local models (Ollama on one AMD Strix Halo GPU) and local services. Each fold
 is code that runs in the lab today, with personal details replaced by
 placeholders.
 
-Two projects have their own repositories:
+Three projects have their own repositories:
 
 - [web-search-mcp](https://github.com/nishaero/web-search-mcp): an MCP server for
   live web search, weather, Home Assistant state and document search
 - [agent-memory-mcp](https://github.com/nishaero/agent-memory-mcp): shared memory
   for several agents (Postgres with pgvector, HTTP API and MCP front end)
+- [homelab-multi-agent](https://github.com/nishaero/homelab-multi-agent): a coordinator
+  and specialist agents that hand work to each other, with human approval, guard rails,
+  an audit trail, 42 tests and a live evaluation
 
 ## Architecture
 
@@ -106,8 +109,10 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 | Skill | Where to look |
 |---|---|
 | MCP server development | web-search-mcp, agent-memory-mcp |
-| Tool and function calling with local models | docs/ai-design.md, web-search-mcp |
-| Agent guard rails and human approval | docs/ai-design.md |
+| Tool and function calling with local models | homelab-multi-agent, docs/ai-design.md, web-search-mcp |
+| Multi agent orchestration and delegation | homelab-multi-agent |
+| Agent guard rails and human approval | homelab-multi-agent, docs/ai-design.md |
+| Evaluation and testing of agents | homelab-multi-agent (tests, routing evaluation, injection trial) |
 | Agent memory and retrieval | agent-memory-mcp, nas-document-rag |
 | Retrieval augmented generation | nas-document-rag, web-search-mcp (`search_documents`) |
 | Vision language model integration | doorbell-face-recognition, nas-document-rag (OCR) |
@@ -119,15 +124,15 @@ More detail: [architecture](docs/architecture.md), [AI design](docs/ai-design.md
 
 ## Limits, stated plainly
 
-- There are no automated tests or evaluation sets yet. Behaviour was checked on
-  the live system.
-- The ops agent stops an identical repeated tool call, but it has no semantic
-  loop detection. A turn limit and a time budget are the backstop.
-- The agents here are separate single purpose services that share a model and a
-  memory. They do not hand work to each other yet. The plan for that is in
-  [docs/multi-agent-plan.md](docs/multi-agent-plan.md).
-- Prompt injection from untrusted text (changelogs, logs, web pages) has not been
-  tested systematically.
+- Test and evaluation sets are small. homelab-multi-agent has 42 tests and a 12 case routing
+  evaluation. The other projects were checked on the live system only.
+- The older ops agent stops an identical repeated tool call only. homelab-multi-agent adds
+  detection of near identical calls and a cap per tool.
+- The older agents (ops, doorbell, voice) are separate single purpose services. Agents that
+  hand work to each other are in homelab-multi-agent, which runs beside them. The design
+  notes are in [docs/multi-agent-plan.md](docs/multi-agent-plan.md).
+- Prompt injection has been tried with one phrasing on the real models (flagged and ignored),
+  not tested systematically.
 
 ## License
 
