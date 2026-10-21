@@ -19,6 +19,7 @@ flowchart LR
         Face["ha-face\nface recognition"]
         Desc["Home Assistant AI task\nfront door description"]
         Voice["Voice assistant\nWhisper, model, Piper"]
+        Team["hlagents\nops, home, research agents\nwith skills"]
     end
 
     subgraph Shared
@@ -35,6 +36,10 @@ flowchart LR
     Chat --> Ollama
     Desc --> Ollama
     Voice --> Ollama
+    Team --> Ollama
+    Team <--> Mem
+    Human --> Team
+    HAEvents -.-> Team
     Ops <--> Mem
     Ops --> Gate
     HAEvents -.-> Gate
@@ -126,6 +131,17 @@ ADS-B tools are removed from the list while `adsb_enabled` is false.
 `remember_note` saves a short note to the agent-memory service (a small API
 with search). `recall_past` looks notes up at the start of a cycle, so the
 agent does not repeat a fix that already failed.
+
+## The team of agents (hlagents)
+
+A newer project runs beside the ops agent and does not replace it. A coordinator splits a request between an ops,
+a home and energy and a research agent. They hand work to each other through a task table, follow written skills for
+their role, and can only ask a person to approve a change. The person decides on the phone (buttons), the command
+line or an API, and an assistant can ask the team questions through an MCP server that cannot approve anything.
+
+Code, tests, guard rails and a live evaluation are in
+[homelab-multi-agent](https://github.com/nishaero/homelab-multi-agent). The ops agent code is in
+[homelab-ops-agent](https://github.com/nishaero/homelab-ops-agent).
 
 ## Sharing one GPU
 

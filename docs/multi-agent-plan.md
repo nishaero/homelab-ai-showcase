@@ -131,3 +131,10 @@ are added on top:
 - **Dry run by default.** Approved actions are recorded and only run when dry run is turned off.
 - **Model choice measured.** `qwen3.8:27b` scored best on routing and tool use and was faster
   than the other large model tried. See the evaluation page in the project.
+- **Remote access was added.** A token protected HTTP API, phone approval buttons through Home Assistant and an MCP
+  server (with no approve tool) so an assistant can ask the team.
+- **Skills were added.** Each role follows written procedures from plain files, which can be read and reviewed like code
+  and cannot grant any tool.
+- **Tests grew with it.** 65 tests with a scripted model, including the API, the phone buttons and the MCP server.
+- **The ops agent is public too.** [homelab-ops-agent](https://github.com/nishaero/homelab-ops-agent), sanitized, with
+  guard rail tests.

@@ -104,3 +104,37 @@ flowchart LR
 
 A queue is only resumed when the last owner lets go. A queue that was paused on
 purpose is never touched.
+
+## Approval from the phone
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant T as Task table
+    participant HA as Home Assistant
+    participant P as Phone
+    participant B as Bridge
+    A->>T: request_action (validated, nothing runs)
+    T->>HA: notify with Approve and Deny buttons (one time token inside)
+    HA->>P: notification
+    P->>HA: button press (event)
+    HA->>B: mobile_app_notification_action
+    B->>B: token matches this request, not expired, not decided yet
+    B->>T: record the decision and run the action (or record a dry run)
+    B->>HA: replace the notification with the outcome
+```
+
+A press with a missing or wrong token is ignored and written to the audit trail.
+
+## Asking the team from Home Assistant
+
+```mermaid
+flowchart LR
+    V["Assistant or chat"] -->|"MCP: ask_team, team_status,<br/>list_pending_approvals"| M["MCP server<br/>(secret path)"]
+    M -->|"token"| API["HTTP API"]
+    API --> C["Coordinator and agents"]
+    C --> API --> M --> V
+    C -.->|"change needed"| N["Phone notification<br/>Approve / Deny"]
+```
+
+The MCP server has no approve tool, so a spoken request can never approve a change.

@@ -35,6 +35,7 @@ flowchart TB
         Gate["immich-gate\nimmich-yield (temporary)"]
         Face["ha-face\ndoorbell face service"]
         Mem["agent-memory\nAPI + MCP"]
+        Team["hlagents\ncoordinator + specialist agents\nAPI, phone buttons, MCP"]
         NC["Nextcloud stack"]
         Exp["exporters"]
     end
@@ -63,6 +64,12 @@ flowchart TB
     Agent -->|"model calls"| Ollama
     Agent -->|"alerts"| Ntfy
     Agent <-->|"notes"| Mem
+    Team -->|"model calls (one at a time)"| Ollama
+    Team -->|"read only lookups"| HAOS
+    Team -.->|"read only"| LXC102
+    Team <-.->|"optional notes"| Mem
+    Team -->|"approval request with buttons"| HAOS
+    HAOS -->|"MCP: ask the team,\nbutton presses"| Team
     Agent -->|"pause and resume at night"| Gate
 
     HAOS -->|"events"| Face
@@ -92,7 +99,7 @@ flowchart TB
   devices on the IoT network while the admin connection stays on the wired network.
 - **Workstation**: Ubuntu on Ethernet with an AMD Strix Halo
   GPU. It runs Ollama, Open WebUI, mcpo, Immich, Nextcloud, the doorbell face
-  service, the agent memory service and the metrics exporters.
+  service, the agent memory service, the multi agent team (hlagents) and the metrics exporters.
 - **QNAP NAS**: Plex and the SMB shares that Immich mounts.
 - **ADS-B Pi**: flight tracking receiver. The agent does not manage it right
   now (adsb_enabled is false).

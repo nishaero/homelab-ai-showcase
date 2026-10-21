@@ -51,6 +51,7 @@ flowchart TB
         Gate["immich-gate\nimmich-yield (temporary)"]
         Face["ha-face\ndoorbell face service"]
         Mem["agent-memory\nAPI + MCP"]
+        Team["hlagents\ncoordinator + specialist agents\nAPI, phone buttons, MCP"]
         NC["Nextcloud stack"]
         Exp["exporters"]
     end
@@ -79,6 +80,12 @@ flowchart TB
     Agent -->|"model calls"| Ollama
     Agent -->|"alerts"| Ntfy
     Agent <-->|"notes"| Mem
+    Team -->|"model calls (one at a time)"| Ollama
+    Team -->|"read only lookups"| HAOS
+    Team -.->|"read only"| LXC102
+    Team <-.->|"optional notes"| Mem
+    Team -->|"approval request with buttons"| HAOS
+    HAOS -->|"MCP: ask the team,\nbutton presses"| Team
     Agent -->|"pause and resume at night"| Gate
 
     HAOS -->|"events"| Face
